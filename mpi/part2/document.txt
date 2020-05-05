@@ -1,0 +1,48 @@
+Explanation of Algorithm
+========================
+
+Created 2 subgroups using MPI_Comm_split(MPI_COMM_WORLD, group, world_rank, &row_comm) function
+Here group => 0 and 1 is the indexes alloted to subgroups
+
+Generating (1000000000/8) random numbers in each of the 8 nodes
+Using mergeSort (sequential mergesort) function to sort this array
+
+Now consider a subgroup,
+0 1 2 3
+|_| |_|
+|   |
+|___|
+|
+S1 => Sorted list1
+
+Similarly getting S2 => Sorted list2
+
+Nodes 1 and 3 send sorted subarrays to nodes 0 and 2 respectively and merging using parallelmerge function
+to create a array of size double of both
+Similarly merged subarray from node 2 is sent to node 0 for merging giving S1
+
+S1 S2
+|__|
+|
+F => Final Sorted Array
+
+Merging both S1 and S2 gives F => Final Sorted Array
+
+Code Details
+============
+
+The variable tot_arraysize defines the Array size
+
+There is a segment of commented code which prints the Original unsorted Array(Uncomment to print the Original Array)
+
+Macro varible SEED defines the seed for the rand function
+Each different node uses a different seed value = SEED * world_rank
+world_rank = Rank of node in MPI_COMM_WORLD
+
+Function Details:
+
+int create_rand() => creates a random number
+void printarray(int arr[], int size) => Prints a integer array of given size
+void linearmerge(int arr[], int l, int m, int r) => Merge function for Sequential mergesort
+void mergeSort(int arr[], int l, int r) => Sequential recursive mergesort
+void parallelmerge(int half1[], int half2[], int out[], int size1, int size2) => Merges two sorted arrays from different nodes
